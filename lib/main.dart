@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'pages/criar_conta.dart';
 import 'pages/login.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -25,12 +24,12 @@ Future<void> main() async {
       'login': (context) => const Login(),
       'generos': (context) => const Genres(),
       'cadastro': (context) => const Cadastro(),
-      'menu': (context) => const  Menu(),
+      'menu': (context) => const Menu(),
       'pesquisar': (context) => const Pesquisa(),
       //'principal': (context) => Principal(),
       'sobre': (context) => const Sobre(),
       'livros': (context) => const Livros(),
-      'rastreio': (context) =>const  Rastreio(),
+      'rastreio': (context) => const Rastreio(),
     },
   ));
 }
@@ -115,7 +114,7 @@ class _GenresState extends State<Genres> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const  Icon(Icons.search),
+            icon: const Icon(Icons.search),
             color: Colors.white,
             onPressed: () => Navigator.of(context).pushNamed('pesquisar'),
           ),
@@ -124,7 +123,7 @@ class _GenresState extends State<Genres> {
       body: Container(
         padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
         // ignore: avoid_unnecessary_containers
-        child:  Container(
+        child: Container(
             child: GridView.count(
           crossAxisCount: 2,
           padding: const EdgeInsets.all(10),
@@ -205,13 +204,13 @@ class Menu extends StatelessWidget {
             onTap: () => {Navigator.popAndPushNamed(context, 'rastreio')},
           ),
           ListTile(
-            leading:const  Icon(Icons.settings),
+            leading: const Icon(Icons.settings),
             title: const Text('Configurações'),
             onTap: () => {},
           ),
           ListTile(
             leading: const Icon(Icons.info),
-            title:const  Text('Sobre'),
+            title: const Text('Sobre'),
             onTap: () => {Navigator.pushNamed(context, 'sobre')},
           ),
           ListTile(
@@ -299,7 +298,7 @@ class Sobre extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         //bottomNavigationBar: Principal(),
-        drawer: const  Menu(),
+        drawer: const Menu(),
         appBar: AppBar(),
         body: Container(
             padding: const EdgeInsets.all(40),
