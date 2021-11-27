@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -24,12 +25,12 @@ class _CadastroState extends State<Cadastro> {
         title: const Text('Registro'),
       ),
       body: Container(
-        padding:const  EdgeInsets.all(45),
+        padding: const EdgeInsets.all(45),
         //color: Colors.orange.shade700,
         child: Container(
-          padding:const EdgeInsets.all(30),
+          padding: const EdgeInsets.all(30),
           decoration: BoxDecoration(
-            borderRadius: const  BorderRadius.all(Radius.circular(4)),
+            borderRadius: const BorderRadius.all(Radius.circular(4)),
             //color: Colors.white,
             border: Border.all(
               width: 1,
@@ -38,25 +39,26 @@ class _CadastroState extends State<Cadastro> {
           ),
           child: Column(
             children: [
-              SizedBox(height: 100, child: Image.asset('lib/images/dlivros.png')),
+              SizedBox(
+                  height: 100, child: Image.asset('lib/images/dlivros.png')),
               TextFormField(
                 controller: txtNome,
-                decoration: const  InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Nome',
                   border: OutlineInputBorder(),
                 ),
               ),
-              const  SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               TextFormField(
                 controller: txtEmail,
-                decoration: const  InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'E-mail',
                   border: OutlineInputBorder(),
                 ),
               ),
-              const  SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               TextFormField(
@@ -75,12 +77,16 @@ class _CadastroState extends State<Cadastro> {
                 height: 40,
                 child: ElevatedButton(
                   onPressed: () {
+                    FirebaseFirestore.instance.collection('/usuarios').add({
+                      'nome': txtNome.text,
+                      'email': txtEmail.text,
+                    });
                     criarConta(txtNome.text, txtEmail.text, txtSenha.text);
                   },
                   child: const Text('registrar'),
                   style: ElevatedButton.styleFrom(
                       primary: Colors.orange.shade800,
-                      textStyle:const  TextStyle(
+                      textStyle: const TextStyle(
                         fontSize: 16,
                       ),
                       shape: RoundedRectangleBorder(
@@ -94,7 +100,7 @@ class _CadastroState extends State<Cadastro> {
                 color: Colors.black26,
                 height: 1,
               ),
-             const  SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               RichText(
@@ -104,7 +110,7 @@ class _CadastroState extends State<Cadastro> {
                     style: TextStyle(color: Colors.grey[500])),
                 TextSpan(
                     text: 'Login',
-                    style:const  TextStyle(color: Colors.blueAccent),
+                    style: const TextStyle(color: Colors.blueAccent),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () {
                         Navigator.pop(context);
@@ -136,7 +142,7 @@ class _CadastroState extends State<Cadastro> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(msg),
-        duration:const  Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }

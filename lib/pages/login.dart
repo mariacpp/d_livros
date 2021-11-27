@@ -37,7 +37,8 @@ class _LoginState extends State<Login> {
           padding: const EdgeInsets.all(15),
           child: Column(
             children: [
-              SizedBox(height: 100, child: Image.asset('lib/images/dlivros.png')),
+              SizedBox(
+                  height: 100, child: Image.asset('lib/images/dlivros.png')),
               TextFormField(
                 controller: txtEmail,
                 decoration: const InputDecoration(

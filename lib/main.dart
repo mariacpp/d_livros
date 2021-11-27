@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -30,69 +31,12 @@ Future<void> main() async {
       'sobre': (context) => const Sobre(),
       'livros': (context) => const Livros(),
       'rastreio': (context) => const Rastreio(),
+      'sugestoes': (context) => const SugestaoPage(),
     },
   ));
 }
 
 var txtNome = TextEditingController();
-
-//
-//TELA PRINCIPAL
-//
-
-/*class Principal extends StatefulWidget {
-  const Principal({Key? key}) : super(key: key);
-
-  @override
-  _PrincipalState createState() => _PrincipalState();
-}
-
-class _PrincipalState extends State<Principal> {
-  var telaAtual = 0;
-  var pageController = PageController();
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: Menu(),
-      body: PageView(
-        controller: pageController,
-        children: [
-          Genres(),
-          Notificacoes(),
-        ],
-        onPageChanged: (index) {
-          setState(() {
-            telaAtual = index;
-          });
-        },
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.yellow[600],
-        selectedItemColor: Colors.white.withOpacity(1.0),
-        iconSize: 40,
-        selectedFontSize: 16,
-        unselectedFontSize: 16,
-        currentIndex: telaAtual,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.category_outlined),
-            label: 'Gêneros',
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.notifications_outlined), label: 'Notificações')
-        ],
-        onTap: (index) {
-          setState(() {
-            telaAtual = index;
-          });
-          pageController.animateToPage(index,
-              duration: Duration(milliseconds: 200), curve: Curves.ease);
-        },
-      ),
-    );
-  }
-}*/
 
 //
 //GENEROS
@@ -202,6 +146,11 @@ class Menu extends StatelessWidget {
             leading: const Icon(Icons.motorcycle),
             title: const Text('Rastrear'),
             onTap: () => {Navigator.popAndPushNamed(context, 'rastreio')},
+          ),
+          ListTile(
+            leading: const Icon(Icons.pending_actions),
+            title: const Text('Sugestões'),
+            onTap: () => {Navigator.pushNamed(context, 'sugestoes')},
           ),
           ListTile(
             leading: const Icon(Icons.settings),
@@ -328,10 +277,47 @@ class Sobre extends StatelessWidget {
 //
 //LIVROS
 //
-class Livros extends StatelessWidget {
+class Livros extends StatefulWidget {
   const Livros({Key? key}) : super(key: key);
 
   @override
+  State<Livros> createState() => _LivrosState();
+}
+
+class _LivrosState extends State<Livros> {
+  late CollectionReference livros;
+
+  @override
+  void initState() {
+    super.initState();
+    livros = FirebaseFirestore.instance.collection('/livros');
+  }
+
+  exibirLivro(livro) {
+    String titulo = livro.data()['titulo'];
+    String autor = livro.data()['autor'];
+    String sinopse = livro.data()['sinopse'];
+    String capa = livro.data()['capa'];
+
+    return InkWell(
+        child: SizedBox(
+          height: 400,
+          width: 200,
+          child: Image.asset(capa),
+        ),
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Widgetlivro(
+                        autor,
+                        capa,
+                        sinopse,
+                        titulo,
+                      )));
+        });
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
         drawer: const Menu(),
@@ -344,98 +330,32 @@ class Livros extends StatelessWidget {
             ),
           ],
         ),
-        body: Container(
-            //width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(0, 20, 10, 10),
-            child: Scrollbar(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                children: [
-                  InkWell(
-                      child: SizedBox(
-                        height: 400,
-                        width: 200,
-                        child: Image.asset('lib/images/jogos_vorazes_1.jpg'),
+        body: StreamBuilder<QuerySnapshot>(
+            stream: livros.snapshots(),
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                  return const Center(
+                    child: Text('Não foi possivel conectar...'),
+                  );
+                case ConnectionState.waiting:
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                default:
+                  final dados = snapshot.requireData;
+                  return GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
                       ),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const Widgetlivro(
-                                    'Suzane Collins',
-                                    'lib/images/jogos_vorazes_1.jpg',
-                                    'A história ocorre em um futuro pós-apocalíptico e é narrada em primeira pessoa pela personagem Katniss Everdeen. O enredo do livro se desenvolve sob a sua rotina e sua relação com o melhor amigo, Gale (que possui um amor platônico por ela), a irmã Primrose e sua mãe.',
-                                    'Jogos Vorazes')));
-                      }),
-                  InkWell(
-                      child: SizedBox(
-                        height: 400,
-                        width: 200,
-                        child: Image.asset('lib/images/opp.jpg'),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const Widgetlivro(
-                                    'Antoine de Saint-Exupéry',
-                                    'lib/images/opp.jpg',
-                                    'Um piloto cai com seu avião no deserto e ali encontra uma criança loura e frágil. Ela diz ter vindo de um pequeno planeta distante. E ali, na convivência com o piloto perdido, os dois repensam os seus valores e encontram o sentido da vida.',
-                                    'O Pequeno Príncipe')));
-                      }),
-                  InkWell(
-                      child: SizedBox(
-                        height: 400,
-                        width: 200,
-                        child: Image.asset('lib/images/anne.jpg'),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const Widgetlivro(
-                                    'Anne Frank',
-                                    'lib/images/anne.jpg',
-                                    'O diário de Anne Frank, o depoimento da pequena Anne, morta pelos nazistas após passar anos escondida no sótão de uma casa em Amsterdã, ainda hoje emociona leitores no mundo inteiro. Suas anotações narram os sentimentos, os medos e as pequenas alegrias de uma menina judia que, como sua família, lutou em vão para sobreviver ao Holocausto.Uma poderosa lembrança dos horrores de uma guerra, um testemunho eloquente do espírito humano. Assim podemos descrever os relatos feitos por Anne em seu diário. Isolados do mundo exterior, os Frank enfrentaram a fome, o tédio e a terrível realidade do confinamento, além da ameaça constante de serem descobertos.',
-                                    'O Diário de Anne Frank')));
-                      }),
-                  InkWell(
-                      child: SizedBox(
-                        height: 400,
-                        width: 200,
-                        child: Image.asset('lib/images/omdvu.jpg'),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const Widgetlivro(
-                                    'Emily Brontë',
-                                    'lib/images/omdvu.jpg',
-                                    'O morro dos ventos uivantes retrata uma trágica historia de amor e obsessão em que os personagens principais são a obstinada e geniosa Catherine Earnshaw e seu irmão adotivo, Heathcliff. Grosseiro, humilhado e rejeitado, ele guarda apenas rancor no coração, mas tem com Catherine um relaciona- mento marcado por amor e, ao mesmo tempo, ódio. Essa ligação perdura mesmo com o casamento de Catherine com Edgar Linton.',
-                                    'O Morro dos Ventos Uivantes')));
-                      }),
-                  InkWell(
-                      child: SizedBox(
-                        height: 400,
-                        width: 200,
-                        child: Image.asset('lib/images/pride.jpg'),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const Widgetlivro(
-                                    'Jane Austen',
-                                    'lib/images/pride.jpg',
-                                    'A história de Orgulho e Preconceito gira em torno das cinco irmãs Bennet, que viviam na área rural do interior da Inglaterra, no século XVIII. Aborda a questão da sucessão em uma família sem homens, dentro de uma sociedade patriarcal, onde o casamento era fundamental para as mulheres. Assim, quando um homem rico e solteiro se muda para os arredores, a vida pacata da família entra em ebulição.',
-                                    'Orgulho e Preconceito')));
-                      }),
-                ],
-              ),
-            )));
+                      itemBuilder: (context, index) {
+                        return exibirLivro(dados.docs[index]);
+                      });
+              }
+            }));
   }
 }
 
@@ -607,5 +527,131 @@ class _RastreioState extends State<Rastreio> {
             width: double.infinity,
           ),
         ));
+  }
+}
+
+class SugestaoPage extends StatefulWidget {
+  const SugestaoPage({Key? key}) : super(key: key);
+
+  @override
+  _SugestaoPageState createState() => _SugestaoPageState();
+}
+
+class _SugestaoPageState extends State<SugestaoPage> {
+  late CollectionReference sugestoes;
+  var txtTitulo = TextEditingController();
+  var txtAutor = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    sugestoes = FirebaseFirestore.instance.collection('/sugestoes');
+  }
+
+  exibirItemColecao(item) {
+    String titulo = item.data()['titulo'];
+    String autor = item.data()['autor'];
+    return ListTile(
+      title: Text(
+        titulo,
+        style: const TextStyle(fontSize: 25),
+      ),
+      subtitle: Text(
+        autor,
+        style: const TextStyle(fontSize: 15),
+      ),
+      trailing: IconButton(
+        icon: const Icon(Icons.delete),
+        onPressed: () {
+          //APAGR
+          sugestoes.doc(item.id).delete();
+        },
+      ),
+    );
+  }
+
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Sugestões'),
+        centerTitle: true,
+        backgroundColor: Colors.red[400],
+      ),
+      //
+      //LISTAR DOCUMENTOS DA COLEÇÃO
+      //
+      body: StreamBuilder<QuerySnapshot>(
+        stream: sugestoes.snapshots(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+              return const Center(child: Text('Não foi possivel conectar'));
+            case ConnectionState.waiting:
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            default:
+              final dados = snapshot.requireData;
+              return ListView.builder(itemBuilder: (context, index) {
+                return exibirItemColecao(dados.docs[index]);
+              });
+          }
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.red,
+        child: const Icon(Icons.add),
+        onPressed: () {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) => AlertDialog(
+                    title: const Text('Nova Sugestão'),
+                    content: SizedBox(
+                      width: double.infinity,
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: txtTitulo,
+                            decoration: const InputDecoration(
+                              hintText: 'Título',
+                            ),
+                          ),
+                          TextField(
+                            controller: txtAutor,
+                            decoration: const InputDecoration(
+                              hintText: 'Autor',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('cancelar')),
+                      TextButton(
+                          onPressed: () {
+                            FirebaseFirestore.instance
+                                .collection('sugestoes')
+                                .add({
+                              'titulo': txtTitulo.text,
+                              'autor': txtAutor.text,
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Sugestão feita com sucesso!'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                            Navigator.pop(context);
+                          },
+                          child: const Text('ok')),
+                    ],
+                  ));
+        },
+      ),
+    );
   }
 }
