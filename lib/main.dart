@@ -345,15 +345,17 @@ class _LivrosState extends State<Livros> {
                 default:
                   final dados = snapshot.requireData;
                   return GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                      ),
-                      itemBuilder: (context, index) {
-                        return exibirLivro(dados.docs[index]);
-                      });
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                    ),
+                    itemBuilder: (context, index) {
+                      return exibirLivro(dados.docs[index]);
+                    },
+                    itemCount: dados.docs.length,
+                  );
               }
             }));
   }
@@ -591,9 +593,12 @@ class _SugestaoPageState extends State<SugestaoPage> {
               );
             default:
               final dados = snapshot.requireData;
-              return ListView.builder(itemBuilder: (context, index) {
-                return exibirItemColecao(dados.docs[index]);
-              });
+              return ListView.builder(
+                itemBuilder: (context, index) {
+                  return exibirItemColecao(dados.docs[index]);
+                },
+                itemCount: dados.docs.length,
+              );
           }
         },
       ),
